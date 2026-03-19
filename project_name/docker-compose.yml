@@ -1,0 +1,53 @@
+# ==============================================================
+#  docker compose up  — start dev container
+#  docker compose down — stop & remove
+#  See Makefile for shortcuts
+# ==============================================================
+
+services:
+  ros2:
+    build:
+      context: ./docker
+      args:
+        UID: ${UID:-1000}
+        GID: ${GID:-1000}
+        USER_NAME: ${USER_NAME:-developer}
+    image: project_name:latest          # tag the image so rebuilds are fast
+    container_name: project_name
+
+    # --- Networking ---
+    network_mode: host
+    ipc: host
+    pid: host                    # share PID namespace (useful for debugging)
+
+    # --- Permissions ---
+    privileged: true             # needed for /dev access (GPU, sensors)
+    user: "${UID:-1000}:${GID:-1000}"
+
+    # --- Resources ---
+    shm_size: 8g
+
+    # --- Environment ---
+    environment:
+      - DISPLAY=${DISPLAY:-:0}
+      - QT_X11_NO_MITSHM=1
+      - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
+      - TERM=xterm-256color
+
+    # --- Volumes ---
+    volumes:
+      - ./:/workspace
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - /dev/dri:/dev/dri                       # GPU
+      # Persist bash history & colcon build cache between containers
+      - project_name_bash_history:/home/${USER_NAME:-developer}/.bash_history_dir
+      - project_name_colcon_cache:/workspace/build
+
+    working_dir: /workspace
+    stdin_open: true     # docker attach
+    tty: true            # coloured output
+    restart: unless-stopped
+
+volumes:
+  project_name_bash_history:
+  project_name_colcon_cache:
