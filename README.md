@@ -25,6 +25,7 @@ This repository provides a ready-to-use development environment built with **Doc
     ├── .dockerignore
     ├── Dockerfile
     └── entrypoint.sh
+```
 
 ## Quick Start
 
@@ -34,6 +35,7 @@ chmod +x docker/entrypoint.sh
 make build
 make up
 make exec
+```
 
 For more details, you can expand this README with project-specific instructions.
 Or visit my Blog: cherishxi.xyz
